@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Procuração - Concessionárias de Energia</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c5aa0;
+            --primary-dark: #1e3d72;
+            --secondary: #f8f9fa;
+            --accent: #28a745;
+            --text: #333;
+            --light-text: #6c757d;
+            --border: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        header {
+            background: white;
+            color: var(--primary);
+            padding: 25px 30px;
+            text-align: center;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: var(--light-text);
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0;
+        }
+        
+        .form-container {
+            flex: 1;
+            min-width: 300px;
+            padding: 30px;
+            background-color: var(--secondary);
+        }
+        
+        .preview-container {
+            flex: 1;
+            min-width: 300px;
+            padding: 30px;
+            background-color: white;
+            border-left: 1px solid var(--border);
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2 i {
+            margin-right: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.2);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-option input {
+            width: auto;
+            margin-right: 5px;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-success {
+            background-color: var(--accent);
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .preview-box {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            height: 600px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+        
+        .procuração {
+            line-height: 1.6;
+            font-size: 14px;
+            font-family: 'Times New Roman', Times, serif;
+            text-align: justify;
+        }
+        
+        .procuração-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .procuração-subtitle {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 20px;
+            color: var(--light-text);
+        }
+        
+        .procuração-section {
+            margin-bottom: 15px;
+        }
+        
+        .procuração-bold {
+            font-weight: bold;
+        }
+        
+        .procuração-checkbox {
+            display: inline-block;
+            width: 15px;
+            text-align: center;
+            margin-right: 5px;
+        }
+        
+        .signature-area {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .signature-line {
+            width: 50%;
+            margin: 30px auto 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--light-text);
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .preview-container {
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+        }
+        
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+        
+        .form-note {
+            font-size: 12px;
+            color: var(--light-text);
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i>⚡</i>
+                <span>GERADOR DE PROCURAÇÃO</span>
+            </div>
+            <h1>Concessionárias de Energia</h1>
+            <p class="subtitle">Preencha os dados abaixo para gerar sua procuração automaticamente</p>
+        </header>
+        
+        <div class="content">
+            <div class="form-container">
+                <div class="form-section">
+                    <h2><i>🏢</i> Dados da Concessionária</h2>
+                    <div class="form-group">
+                        <label for="concessionaria" class="required">Concessionária:</label>
+                        <select id="concessionaria" required>
+                            <option value="">Selecione a concessionária</option>
+                            <option value="CELPE">CELPE</option>
+                            <option value="COSERN">COSERN</option>
+                            <option value="CEMIG">CEMIG</option>
+                            <option value="ENERGISA">ENERGISA</option>
+                            <option value="EQUATORIAL">EQUATORIAL</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2><i>👤</i> Dados do Procurador</h2>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="usarAlexandre" checked>
+                        <label for="usarAlexandre">Usar Alexandre Carlos de Araujo Gomes como procurador</label>
+                    </div>
+                    
+                    <div id="dadosProcuradorManual" class="hidden">
+                        <div class="form-group">
+                            <label for="nomeProcurador" class="required">Nome do Procurador:</label>
+                            <input type="text" id="nomeProcurador" placeholder="Nome completo do procurador">
+                        </div>
+                        <div class="form-group">
+                            <label for="cpfProcurador" class="required">CPF do Procurador:</label>
+                            <input type="text" id="cpfProcurador" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2><i>📝</i> Dados do Outorgante</h2>
+                    <div class="form-group">
+                        <label for="tipoOutorgante">Tipo de Outorgante:</label>
+                        <select id="tipoOutorgante">
+                            <option value="pf">Pessoa Física</option>
+                            <option value="pj">Pessoa Jurídica</option>
+                        </select>
+                    </div>
+                    
+                    <div id="dadosPF">
+                        <div class="form-group">
+                            <label for="nomeOutorgantePF" class="required">Nome Completo:</label>
+                            <input type="text" id="nomeOutorgantePF" placeholder="Nome completo">
+                        </div>
+                        <div class="form-group">
+                            <label for="cpfOutorgantePF" class="required">CPF:</label>
+                            <input type="text" id="cpfOutorgantePF" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    
+                    <div id="dadosPJ" class="hidden">
+                        <div class="form-group">
+                            <label for="razaoSocial" class="required">Razão Social:</label>
+                            <input type="text" id="razaoSocial" placeholder="Razão social da empresa">
+                        </div>
+                        <div class="form-group">
+                            <label for="cnpj" class="required">CNPJ:</label>
+                            <input type="text" id="cnpj" placeholder="00.000.000/0000-00">
+                        </div>
+                        <div class="form-group">
+                            <label for="responsavelLegal" class="required">Nome do Responsável Legal:</label>
+                            <input type="text" id="responsavelLegal" placeholder="Nome do responsável legal">
+                        </div>
+                        <div class="form-group">
+                            <label for="cpfResponsavel" class="required">CPF do Responsável Legal:</label>
+                            <input type="text" id="cpfResponsavel" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="uc">Unidade Consumidora (UC) - Opcional:</label>
+                        <input type="text" id="uc" placeholder="Número da unidade consumidora">
+                        <div class="form-note">Número da instalação ou conta contrato</div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2><i>🔐</i> Perfil de Acesso</h2>
+                    <div class="form-group">
+                        <label>Perfil:</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="perfilConsultor" name="perfil" value="consultor" checked>
+                                <label for="perfilConsultor">Consultor</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="perfilProjetista" name="perfil" value="projetista">
+                                <label for="perfilProjetista">Projetista</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo de Perfil:</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="perfilCompleto" name="tipoPerfil" value="completo" checked>
+                                <label for="perfilCompleto">Completo</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="perfilRestrito" name="tipoPerfil" value="restrito">
+                                <label for="perfilRestrito">Restrito</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2><i>📅</i> Local e Data da Assinatura</h2>
+                    <div class="form-group">
+                        <label for="localAssinatura" class="required">Local da Assinatura:</label>
+                        <input type="text" id="localAssinatura" placeholder="Cidade - UF">
+                    </div>
+                    <div class="form-group">
+                        <label for="dataAssinatura" class="required">Data da Assinatura:</label>
+                        <input type="date" id="dataAssinatura">
+                        <div class="form-note">A validade será de 1 ano a partir desta data</div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button id="gerarProcuração" class="btn">
+                        <i>📄</i> Gerar Procuração
+                    </button>
+                    <button id="limparFormulario" class="btn btn-secondary">
+                        <i>🗑️</i> Limpar
+                    </button>
+                    <button id="exportarPDF" class="btn btn-success" disabled>
+                        <i>📥</i> Exportar PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div class="preview-container">
+                <h2><i>👁️</i> Visualização da Procuração</h2>
+                <div class="preview-box">
+                    <div id="emptyState" class="empty-state">
+                        <i>📝</i>
+                        <h3>Procuração não gerada</h3>
+                        <p>Preencha o formulário ao lado e clique em "Gerar Procuração" para visualizar o documento aqui.</p>
+                    </div>
+                    <div id="procuraçãoPreview" class="procuração hidden">
+                        <div class="procuração-title">PROCURAÇÃO</div>
+                        <div class="procuração-subtitle">Procuração para Liberação de Acesso</div>
+                        <div id="procuraçãoContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do DOM
+            const concessionariaSelect = document.getElementById('concessionaria');
+            const usarAlexandreCheckbox = document.getElementById('usarAlexandre');
+            const dadosProcuradorManual = document.getElementById('dadosProcuradorManual');
+            const tipoOutorganteSelect = document.getElementById('tipoOutorgante');
+            const dadosPF = document.getElementById('dadosPF');
+            const dadosPJ = document.getElementById('dadosPJ');
+            const gerarBtn = document.getElementById('gerarProcuração');
+            const limparBtn = document.getElementById('limparFormulario');
+            const exportarPDFBtn = document.getElementById('exportarPDF');
+            const emptyState = document.getElementById('emptyState');
+            const procuraçãoPreview = document.getElementById('procuraçãoPreview');
+            const procuraçãoContent = document.getElementById('procuraçãoContent');
+            const dataAssinaturaInput = document.getElementById('dataAssinatura');
+            
+            // Definir data atual como padrão
+            const hoje = new Date();
+            dataAssinaturaInput.value = hoje.toISOString().split('T')[0];
+            
+            // Event Listeners
+            usarAlexandreCheckbox.addEventListener('change', function() {
+                dadosProcuradorManual.classList.toggle('hidden', this.checked);
+            });
+            
+            tipoOutorganteSelect.addEventListener('change', function() {
+                const isPF = this.value === 'pf';
+                dadosPF.classList.toggle('hidden', !isPF);
+                dadosPJ.classList.toggle('hidden', isPF);
+            });
+            
+            gerarBtn.addEventListener('click', gerarProcuração);
+            limparBtn.addEventListener('click', limparFormulario);
+            exportarPDFBtn.addEventListener('click', exportarParaPDF);
+            
+            // Função para gerar a procuração
+            function gerarProcuração() {
+                // Validar campos obrigatórios
+                if (!validarFormulario()) {
+                    return;
+                }
+                
+                // Coletar dados do formulário
+                const dados = coletarDadosFormulario();
+                
+                // Gerar HTML da procuração
+                const procuraçãoHTML = gerarHTMLProcuração(dados);
+                
+                // Exibir a procuração gerada
+                procuraçãoContent.innerHTML = procuraçãoHTML;
+                emptyState.classList.add('hidden');
+                procuraçãoPreview.classList.remove('hidden');
+                exportarPDFBtn.disabled = false;
+            }
+            
+            // Função para validar o formulário
+            function validarFormulario() {
+                if (!concessionariaSelect.value) {
+                    alert('Por favor, selecione uma concessionária.');
+                    return false;
+                }
+                
+                const usarAlexandre = usarAlexandreCheckbox.checked;
+                if (!usarAlexandre) {
+                    const nomeProcurador = document.getElementById('nomeProcurador').value;
+                    const cpfProcurador = document.getElementById('cpfProcurador').value;
+                    
+                    if (!nomeProcurador || !cpfProcurador) {
+                        alert('Por favor, preencha os dados do procurador.');
+                        return false;
+                    }
+                }
+                
+                const tipoOutorgante = tipoOutorganteSelect.value;
+                if (tipoOutorgante === 'pf') {
+                    const nomeOutorgante = document.getElementById('nomeOutorgantePF').value;
+                    const cpfOutorgante = document.getElementById('cpfOutorgantePF').value;
+                    
+                    if (!nomeOutorgante || !cpfOutorgante) {
+                        alert('Por favor, preencha os dados do outorgante (Pessoa Física).');
+                        return false;
+                    }
+                } else {
+                    const razaoSocial = document.getElementById('razaoSocial').value;
+                    const cnpj = document.getElementById('cnpj').value;
+                    const responsavelLegal = document.getElementById('responsavelLegal').value;
+                    const cpfResponsavel = document.getElementById('cpfResponsavel').value;
+                    
+                    if (!razaoSocial || !cnpj || !responsavelLegal || !cpfResponsavel) {
+                        alert('Por favor, preencha todos os dados da Pessoa Jurídica.');
+                        return false;
+                    }
+                }
+                
+                const localAssinatura = document.getElementById('localAssinatura').value;
+                if (!localAssinatura) {
+                    alert('Por favor, informe o local da assinatura.');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Função para coletar dados do formulário
+            function coletarDadosFormulario() {
+                const concessionaria = concessionariaSelect.value;
+                const usarAlexandre = usarAlexandreCheckbox.checked;
+                
+                let nomeProcurador, cpfProcurador;
+                if (usarAlexandre) {
+                    nomeProcurador = "ALEXANDRE CARLOS DE ARAUJO GOMES";
+                    cpfProcurador = "092.128.834-43";
+                } else {
+                    nomeProcurador = document.getElementById('nomeProcurador').value;
+                    cpfProcurador = document.getElementById('cpfProcurador').value;
+                }
+                
+                const tipoOutorgante = tipoOutorganteSelect.value;
+                let nomeOutorgante, cpfOutorgante, razaoSocial, cnpj, responsavelLegal, cpfResponsavel;
+                
+                if (tipoOutorgante === 'pf') {
+                    nomeOutorgante = document.getElementById('nomeOutorgantePF').value;
+                    cpfOutorgante = document.getElementById('cpfOutorgantePF').value;
+                } else {
+                    razaoSocial = document.getElementById('razaoSocial').value;
+                    cnpj = document.getElementById('cnpj').value;
+                    responsavelLegal = document.getElementById('responsavelLegal').value;
+                    cpfResponsavel = document.getElementById('cpfResponsavel').value;
+                }
+                
+                const uc = document.getElementById('uc').value;
+                const perfil = document.querySelector('input[name="perfil"]:checked').value;
+                const tipoPerfil = document.querySelector('input[name="tipoPerfil"]:checked').value;
+                const localAssinatura = document.getElementById('localAssinatura').value;
+                const dataAssinatura = new Date(document.getElementById('dataAssinatura').value);
+                
+                // Calcular data de validade (1 ano após a data de assinatura)
+                const dataValidade = new Date(dataAssinatura);
+                dataValidade.setFullYear(dataValidade.getFullYear() + 1);
+                
+                return {
+                    concessionaria,
+                    nomeProcurador,
+                    cpfProcurador,
+                    tipoOutorgante,
+                    nomeOutorgante,
+                    cpfOutorgante,
+                    razaoSocial,
+                    cnpj,
+                    responsavelLegal,
+                    cpfResponsavel,
+                    uc,
+                    perfil,
+                    tipoPerfil,
+                    localAssinatura,
+                    dataAssinatura,
+                    dataValidade
+                };
+            }
+            
+            // Função para gerar o HTML da procuração
+            function gerarHTMLProcuração(dados) {
+                const dataAssinaturaFormatada = formatarData(dados.dataAssinatura);
+                const dataValidadeFormatada = formatarData(dados.dataValidade);
+                
+                let procuraçãoHTML = '';
+                
+                procuraçãoHTML += `<div class="procuração-section">
+                    Venho, por meio desta, autorizar o acesso ao Portal de Clientes Corporativos da Companhia
+                `;
+                
+                // Texto específico para cada concessionária
+                switch(dados.concessionaria) {
+                    case "CELPE":
+                        procuraçãoHTML += `Energética de Pernambuco – CELPE canal de atendimento exclusivo para Grandes Clientes no
+                        endereço eletrônico http://clientescorporativos.celpe.com.br, `;
+                        break;
+                    case "COSERN":
+                        procuraçãoHTML += `Energética do Rio Grande do Norte – COSERN, canal de atendimento exclusivo para Grandes
+                        Clientes no endereço eletrônico http://clientescorporativos.cosern.com.br, `;
+                        break;
+                    case "CEMIG":
+                        procuraçãoHTML += `Energética – CEMIG, `;
+                        break;
+                    case "ENERGISA":
+                        procuraçãoHTML += `ENERGISA PARAIBA - DISTRIBUIDORA DE ENERGIA canal de atendimento exclusivo para
+                        Grandes Clientes, `;
+                        break;
+                    case "EQUATORIAL":
+                        procuraçãoHTML += `Energética de Alagoas – Equatorial energia canal de atendimento exclusivo para Grandes
+                        Clientes no endereço eletrônico https://al.equatorialenergia.com.br/sua-conta/mini-e-micro-
+                        geracao/parecer-de-acesso/#micro-10, `;
+                        break;
+                }
+                
+                procuraçãoHTML += `para solicitar serviços e acessar informações úteis para a devida prestação
+                dos serviços, do representante abaixo: <span class="procuração-bold">${dados.nomeProcurador.toUpperCase()} - CPF:
+                ${dados.cpfProcurador}.</span></div>`;
+                
+                procuraçãoHTML += `<div class="procuração-section">
+                    A pessoa acima listada está autorizada a receber o acesso `;
+                
+                if (dados.concessionaria === "CEMIG") {
+                    procuraçãoHTML += `e poderão fazer solicitações online`;
+                } else {
+                    procuraçãoHTML += `através de login e senha e poderão fazer solicitações online`;
+                }
+                
+                if (dados.concessionaria === "ENERGISA") {
+                    procuraçãoHTML += ` e fisicamente`;
+                }
+                
+                procuraçãoHTML += ` em nome <span class="procuração-bold">`;
+                
+                if (dados.tipoOutorgante === 'pf') {
+                    procuraçãoHTML += `${dados.nomeOutorgante.toUpperCase()}, CPF: ${dados.cpfOutorgante}`;
+                } else {
+                    procuraçãoHTML += `${dados.razaoSocial.toUpperCase()}, CNPJ: ${dados.cnpj}, representada por ${dados.responsavelLegal.toUpperCase()}, CPF: ${dados.cpfResponsavel}`;
+                }
+                
+                procuraçãoHTML += `</span>`;
+                
+                if (dados.uc) {
+                    procuraçãoHTML += `, referente a Unidade de Consumo `;
+                    
+                    if (dados.concessionaria === "CEMIG") {
+                        procuraçãoHTML += `Número instalação: ${dados.uc}`;
+                    } else {
+                        procuraçãoHTML += `conta contrato ${dados.concessionaria === "COSERN" ? "nº." : "nº"} ${dados.uc}`;
+                    }
+                }
+                
+                procuraçãoHTML += ` como seu representante legal, com perfil de:</div>`;
+                
+                procuraçãoHTML += `<div class="procuração-section">
+                    <span class="procuração-checkbox">${dados.perfil === 'consultor' ? '(X)' : '( )'}</span> consultor, podendo fazer quaisquer solicitações disponíveis no Portal;<br><br>
+                    <span class="procuração-checkbox">${dados.perfil === 'projetista' ? '(X)' : '( )'}</span> projetista, podendo fazer somente solicitações relativas a projetos no Portal.
+                </div>`;
+                
+                procuraçãoHTML += `<div class="procuração-section">
+                    O perfil será do tipo:<br><br>
+                    <span class="procuração-checkbox">${dados.tipoPerfil === 'completo' ? '(X)' : '( )'}</span> completo, de forma que o usuário possa fazer solicitações para a UC(unidade
+                    consumidora) conta contrato citada acima vinculada ao ${dados.tipoOutorgante === 'pf' ? 'CPF' : 'CNPJ'} já informado;<br><br>
+                    <span class="procuração-checkbox">${dados.tipoPerfil === 'restrito' ? '(X)' : '( )'}</span> restrito, podendo fazer somente solicitações para unidades consumidoras listadas no
+                    Anexo I desta procuração.
+                </div>`;
+                
+                procuraçãoHTML += `<div class="procuração-section">
+                    O prazo de validade desta autorização é:<br><br>
+                    <span class="procuração-checkbox">( )</span> indeterminado<br><br>
+                    <span class="procuração-checkbox">(X)</span> até ${dataValidadeFormatada}
+                </div>`;
+                
+                procuraçãoHTML += `<div class="procuração-section">
+                    Estou ciente da responsabilidade de manter a ${dados.concessionaria} atualizada quanto aos usuários
+                    autorizados, os respectivos perfis e tipos de perfis e o prazo de validade da autorização.
+                </div>`;
+                
+                procuraçãoHTML += `<div class="procuração-section">
+                    <span class="procuração-bold">${dados.localAssinatura.toUpperCase()}, ${dataAssinaturaFormatada}.</span>
+                </div>`;
+                
+                procuraçãoHTML += `<div class="signature-area">
+                    <div class="signature-line"></div>
+                    ASSINATURA
+                </div>`;
+                
+                return procuraçãoHTML;
+            }
+            
+            // Função para exportar para PDF
+            function exportarParaPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Configurações para PDF
+                const margin = 20;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const maxWidth = pageWidth - 3 * margin;
+                let yPosition = 35;
+                
+                // Adicionar título principal
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('PROCURAÇÃO', pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 8;
+                
+                // Adicionar subtítulo
+                doc.setFontSize(15);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Procuração para Liberação de Acesso', pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 12;
+                
+                // Adicionar conteúdo
+                doc.setFontSize(13);
+                doc.setFont('times', 'normal');
+                
+                // Obter o texto da procuração formatado
+                const procuraçãoText = formatarTextoParaPDF();
+                const lines = doc.splitTextToSize(procuraçãoText, maxWidth);
+                
+                // Adicionar todo o conteúdo
+                doc.text(lines, margin, yPosition);
+                
+                // Salvar o PDF
+                doc.save(`procuração-${concessionariaSelect.value}.pdf`);
+            }
+            
+            // Função para formatar texto para PDF
+            function formatarTextoParaPDF() {
+                const dados = coletarDadosFormulario();
+                const dataAssinaturaFormatada = formatarData(dados.dataAssinatura);
+                const dataValidadeFormatada = formatarData(dados.dataValidade);
+                
+                let texto = 'Venho, por meio desta, autorizar o acesso ao Portal de Clientes Corporativos da Companhia ';
+                
+                // Texto específico para cada concessionária
+                switch(dados.concessionaria) {
+                    case "CELPE":
+                        texto += `Energética de Pernambuco – CELPE canal de atendimento exclusivo para Grandes Clientes no endereço eletrônico http://clientescorporativos.celpe.com.br, `;
+                        break;
+                    case "COSERN":
+                        texto += `Energética do Rio Grande do Norte – COSERN, canal de atendimento exclusivo para Grandes Clientes no endereço eletrônico http://clientescorporativos.cosern.com.br, `;
+                        break;
+                    case "CEMIG":
+                        texto += `Energética – CEMIG, `;
+                        break;
+                    case "ENERGISA":
+                        texto += `ENERGISA PARAIBA - DISTRIBUIDORA DE ENERGIA canal de atendimento exclusivo para Grandes Clientes, `;
+                        break;
+                    case "EQUATORIAL":
+                        texto += `Energética de Alagoas – Equatorial energia canal de atendimento exclusivo para Grandes Clientes no endereço eletrônico https://al.equatorialenergia.com.br/sua-conta/mini-e-micro-geração/parecer-de-acesso/#micro-10, `;
+                        break;
+                }
+                
+                texto += `para solicitar serviços e acessar informações úteis para a devida prestação dos serviços, do representante abaixo: ${dados.nomeProcurador.toUpperCase()} - CPF: ${dados.cpfProcurador}.\n\n`;
+                
+                texto += `A pessoa acima listada está autorizada a receber o acesso `;
+                
+                if (dados.concessionaria === "CEMIG") {
+                    texto += `e poderão fazer solicitações online`;
+                } else {
+                    texto += `através de login e senha e poderão fazer solicitações online`;
+                }
+                
+                if (dados.concessionaria === "ENERGISA") {
+                    texto += ` e fisicamente`;
+                }
+                
+                texto += ` em nome `;
+                
+                if (dados.tipoOutorgante === 'pf') {
+                    texto += `${dados.nomeOutorgante.toUpperCase()}, CPF: ${dados.cpfOutorgante}`;
+                } else {
+                    texto += `${dados.razaoSocial.toUpperCase()}, CNPJ: ${dados.cnpj}, representada por ${dados.responsavelLegal.toUpperCase()}, CPF: ${dados.cpfResponsavel}`;
+                }
+                
+                if (dados.uc) {
+                    texto += `, referente a Unidade de Consumo `;
+                    
+                    if (dados.concessionaria === "CEMIG") {
+                        texto += `Número instalação: ${dados.uc}`;
+                    } else {
+                        texto += `conta contrato ${dados.concessionaria === "COSERN" ? "nº." : "nº"} ${dados.uc}`;
+                    }
+                }
+                
+                texto += ` como seu representante legal, com perfil de:\n\n`;
+                
+                texto += `${dados.perfil === 'consultor' ? '(X)' : '( )'} consultor, podendo fazer quaisquer solicitações disponíveis no Portal;\n\n`;
+                texto += `${dados.perfil === 'projetista' ? '(X)' : '( )'} projetista, podendo fazer somente solicitações relativas a projetos no Portal.\n\n`;
+                
+                texto += `O perfil será do tipo:\n\n`;
+                texto += `${dados.tipoPerfil === 'completo' ? '(X)' : '( )'} completo, de forma que o usuário possa fazer solicitações para a UC(unidade consumidora) conta contrato citada acima vinculada ao ${dados.tipoOutorgante === 'pf' ? 'CPF' : 'CNPJ'} já informado;\n\n`;
+                texto += `${dados.tipoPerfil === 'restrito' ? '(X)' : '( )'} restrito, podendo fazer somente solicitações para unidades consumidoras listadas no Anexo I desta procuração.\n\n`;
+                
+                texto += `O prazo de validade desta autorização é:\n\n`;
+                texto += `( ) indeterminado\n\n`;
+                texto += `(X) até ${dataValidadeFormatada}\n\n`;
+                
+                texto += ``;
+                texto += `Estou ciente da responsabilidade de manter a ${dados.concessionaria} atualizada quanto aos usuários autorizados, os respectivos perfis e tipos de perfis e o prazo de validade da autorização.\n\n`;
+                
+                texto += `${dados.localAssinatura.toUpperCase()}, ${dataAssinaturaFormatada}.\n\n`;
+                
+                texto += `___________________________________________________\n`;
+                texto += `ASSINATURA`;
+                
+                return texto;
+            }
+            
+            // Função para limpar o formulário
+            function limparFormulario() {
+                document.querySelectorAll('input[type="text"], input[type="date"]').forEach(input => {
+                    input.value = '';
+                });
+                
+                document.getElementById('concessionaria').selectedIndex = 0;
+                document.getElementById('usarAlexandre').checked = true;
+                document.getElementById('tipoOutorgante').selectedIndex = 0;
+                document.querySelector('input[name="perfil"][value="consultor"]').checked = true;
+                document.querySelector('input[name="tipoPerfil"][value="completo"]').checked = true;
+                
+                // Mostrar dados PF e esconder PJ
+                dadosPF.classList.remove('hidden');
+                dadosPJ.classList.add('hidden');
+                
+                // Esconder dados do procurador manual
+                dadosProcuradorManual.classList.add('hidden');
+                
+                // Esconder preview
+                emptyState.classList.remove('hidden');
+                procuraçãoPreview.classList.add('hidden');
+                exportarPDFBtn.disabled = true;
+                
+                // Restaurar data atual
+                dataAssinaturaInput.value = new Date().toISOString().split('T')[0];
+            }
+            
+            // Função para formatar data no formato brasileiro
+            function formatarData(data) {
+                const dia = String(data.getDate()).padStart(2, '0');
+                const meses = [
+                    'JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO',
+                    'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'
+                ];
+                const mes = meses[data.getMonth()];
+                const ano = data.getFullYear();
+                
+                return `${dia} de ${mes} de ${ano}`;
+            }
+        });
+    </script>
+</body>
+</html>

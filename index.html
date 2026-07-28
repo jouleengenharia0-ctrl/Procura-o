@@ -321,6 +321,23 @@
         <div class="content">
             <div class="form-container">
                 <div class="form-section">
+                    <h2><i>📋</i> Tipo de Procuração</h2>
+                    <div class="form-group">
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="tipoProcuracaoDigital" name="tipoProcuracao" value="digital" checked>
+                                <label for="tipoProcuracaoDigital">Acesso a Portais Digitais</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="tipoProcuracaoFisica" name="tipoProcuracao" value="fisica">
+                                <label for="tipoProcuracaoFisica">Atendimento Físico</label>
+                            </div>
+                        </div>
+                        <div class="form-note">Escolha se a procuração dará poderes de acesso online (login/senha) ou de solicitação presencial junto à concessionária.</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
                     <h2><i>🏢</i> Dados da Concessionária</h2>
                     <div class="form-group">
                         <label for="concessionaria" class="required">Concessionária:</label>
@@ -399,9 +416,15 @@
                         <input type="text" id="uc" placeholder="Número da unidade consumidora">
                         <div class="form-note">Número da instalação ou conta contrato</div>
                     </div>
+
+                    <div class="form-group" id="enderecoOutorganteGroup">
+                        <label for="enderecoOutorgante">Endereço do Outorgante - Opcional:</label>
+                        <input type="text" id="enderecoOutorgante" placeholder="Endereço completo com CEP">
+                        <div class="form-note">Usado na procuração para atendimento físico</div>
+                    </div>
                 </div>
-                
-                <div class="form-section">
+
+                <div class="form-section" id="perfilAcessoSection">
                     <h2><i>🔐</i> Perfil de Acesso</h2>
                     <div class="form-group">
                         <label>Perfil:</label>
@@ -468,7 +491,7 @@
                     </div>
                     <div id="procuraçãoPreview" class="procuração hidden">
                         <div class="procuração-title">PROCURAÇÃO</div>
-                        <div class="procuração-subtitle">Procuração para Liberação de Acesso</div>
+                        <div class="procuração-subtitle" id="procuraçãoSubtitle">Procuração para Liberação de Acesso</div>
                         <div id="procuraçãoContent"></div>
                     </div>
                 </div>
@@ -492,22 +515,41 @@
             const procuraçãoPreview = document.getElementById('procuraçãoPreview');
             const procuraçãoContent = document.getElementById('procuraçãoContent');
             const dataAssinaturaInput = document.getElementById('dataAssinatura');
-            
+            const procuraçãoSubtitle = document.getElementById('procuraçãoSubtitle');
+            const perfilAcessoSection = document.getElementById('perfilAcessoSection');
+            const tipoProcuracaoRadios = document.querySelectorAll('input[name="tipoProcuracao"]');
+
             // Definir data atual como padrão
             const hoje = new Date();
             dataAssinaturaInput.value = hoje.toISOString().split('T')[0];
-            
+
+            // Nomes completos das concessionárias para uso na procuração de atendimento físico
+            const nomeCompletoConcessionaria = {
+                CELPE: 'Companhia Energética de Pernambuco – CELPE',
+                COSERN: 'Companhia Energética do Rio Grande do Norte – COSERN',
+                CEMIG: 'Companhia Energética de Minas Gerais – CEMIG',
+                ENERGISA: 'ENERGISA PARAÍBA - Distribuidora de Energia',
+                EQUATORIAL: 'Equatorial Energia Alagoas'
+            };
+
             // Event Listeners
             usarAlexandreCheckbox.addEventListener('change', function() {
                 dadosProcuradorManual.classList.toggle('hidden', this.checked);
             });
-            
+
             tipoOutorganteSelect.addEventListener('change', function() {
                 const isPF = this.value === 'pf';
                 dadosPF.classList.toggle('hidden', !isPF);
                 dadosPJ.classList.toggle('hidden', isPF);
             });
-            
+
+            tipoProcuracaoRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const isFisica = document.querySelector('input[name="tipoProcuracao"]:checked').value === 'fisica';
+                    perfilAcessoSection.classList.toggle('hidden', isFisica);
+                });
+            });
+
             gerarBtn.addEventListener('click', gerarProcuração);
             limparBtn.addEventListener('click', limparFormulario);
             exportarPDFBtn.addEventListener('click', exportarParaPDF);
@@ -521,10 +563,17 @@
                 
                 // Coletar dados do formulário
                 const dados = coletarDadosFormulario();
-                
+
+                // Atualizar subtítulo conforme o tipo de procuração
+                procuraçãoSubtitle.textContent = dados.tipoProcuracao === 'fisica'
+                    ? 'Procuração para Atendimento Físico'
+                    : 'Procuração para Liberação de Acesso';
+
                 // Gerar HTML da procuração
-                const procuraçãoHTML = gerarHTMLProcuração(dados);
-                
+                const procuraçãoHTML = dados.tipoProcuracao === 'fisica'
+                    ? gerarHTMLProcuraçãoFisica(dados)
+                    : gerarHTMLProcuração(dados);
+
                 // Exibir a procuração gerada
                 procuraçãoContent.innerHTML = procuraçãoHTML;
                 emptyState.classList.add('hidden');
@@ -582,6 +631,8 @@
             
             // Função para coletar dados do formulário
             function coletarDadosFormulario() {
+                const tipoProcuracao = document.querySelector('input[name="tipoProcuracao"]:checked').value;
+                const enderecoOutorgante = document.getElementById('enderecoOutorgante').value;
                 const concessionaria = concessionariaSelect.value;
                 const usarAlexandre = usarAlexandreCheckbox.checked;
                 
@@ -618,6 +669,7 @@
                 dataValidade.setFullYear(dataValidade.getFullYear() + 1);
                 
                 return {
+                    tipoProcuracao,
                     concessionaria,
                     nomeProcurador,
                     cpfProcurador,
@@ -629,12 +681,81 @@
                     responsavelLegal,
                     cpfResponsavel,
                     uc,
+                    enderecoOutorgante,
                     perfil,
                     tipoPerfil,
                     localAssinatura,
                     dataAssinatura,
                     dataValidade
                 };
+            }
+
+            // Monta o parágrafo do OUTORGANTE (PF ou PJ) para a procuração de atendimento físico
+            function montarOutorganteFisica(dados) {
+                if (dados.tipoOutorgante === 'pf') {
+                    let texto = `${dados.nomeOutorgante.toUpperCase()}, CPF nº ${dados.cpfOutorgante}`;
+                    if (dados.enderecoOutorgante) {
+                        texto += `, residente e domiciliado(a) em ${dados.enderecoOutorgante}`;
+                    }
+                    return texto + '.';
+                }
+
+                let texto = `${dados.razaoSocial.toUpperCase()}, inscrita no CNPJ sob nº ${dados.cnpj}`;
+                if (dados.enderecoOutorgante) {
+                    texto += `, com sede em ${dados.enderecoOutorgante}`;
+                }
+                texto += `, neste ato representada por seu responsável legal ${dados.responsavelLegal.toUpperCase()}, CPF: ${dados.cpfResponsavel}.`;
+                return texto;
+            }
+
+            // Função para gerar o HTML da procuração para atendimento físico
+            function gerarHTMLProcuraçãoFisica(dados) {
+                const dataAssinaturaFormatada = formatarData(dados.dataAssinatura);
+                const dataValidadeFormatada = formatarData(dados.dataValidade);
+                const nomeCompanhia = nomeCompletoConcessionaria[dados.concessionaria] || dados.concessionaria;
+
+                let html = '';
+
+                html += `<div class="procuração-section">
+                    <span class="procuração-bold">OUTORGANTE:</span><br>
+                    ${montarOutorganteFisica(dados)}
+                </div>`;
+
+                html += `<div class="procuração-section">
+                    <span class="procuração-bold">OUTORGADO:</span><br>
+                    ${dados.nomeProcurador.toUpperCase()}, CPF nº ${dados.cpfProcurador}.
+                </div>`;
+
+                html += `<div class="procuração-section">
+                    <span class="procuração-bold">PODERES:</span><br>
+                    Por meio desta, o OUTORGANTE nomeia e constitui como seu bastante procurador o OUTORGADO,
+                    a quem confere poderes para representá-lo junto à ${nomeCompanhia}, podendo para tanto:
+                    <br><br>
+                    - Solicitar serviços diversos;<br>
+                    - Requerer alteração de modalidade tarifária;<br>
+                    - Protocolar e acompanhar solicitações;<br>
+                    - Assinar requerimentos, formulários, termos e quaisquer documentos necessários;<br>
+                    - Prestar informações e praticar todos os atos necessários ao fiel cumprimento deste mandato.
+                    <br><br>
+                    O presente mandato é concedido com poderes amplos e gerais para o fim específico acima descrito.
+                </div>`;
+
+                html += `<div class="procuração-section">
+                    <span class="procuração-bold">PRAZO:</span><br>
+                    Esta procuração é válida até ${dataValidadeFormatada}.
+                </div>`;
+
+                html += `<div class="procuração-section">
+                    <span class="procuração-bold">LOCAL E DATA:</span><br>
+                    <span class="procuração-bold">${dados.localAssinatura.toUpperCase()}, ${dataAssinaturaFormatada}.</span>
+                </div>`;
+
+                html += `<div class="signature-area">
+                    <div class="signature-line"></div>
+                    ASSINATURA DO OUTORGANTE
+                </div>`;
+
+                return html;
             }
             
             // Função para gerar o HTML da procuração
@@ -751,38 +872,70 @@
             function exportarParaPDF() {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                
+                const dados = coletarDadosFormulario();
+                const isFisica = dados.tipoProcuracao === 'fisica';
+
                 // Configurações para PDF
                 const margin = 20;
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const maxWidth = pageWidth - 3 * margin;
                 let yPosition = 35;
-                
+
                 // Adicionar título principal
                 doc.setFontSize(20);
                 doc.setFont('helvetica', 'bold');
                 doc.text('PROCURAÇÃO', pageWidth / 2, yPosition, { align: 'center' });
                 yPosition += 8;
-                
+
                 // Adicionar subtítulo
                 doc.setFontSize(15);
                 doc.setFont('helvetica', 'normal');
-                doc.text('Procuração para Liberação de Acesso', pageWidth / 2, yPosition, { align: 'center' });
+                doc.text(isFisica ? 'Procuração para Atendimento Físico' : 'Procuração para Liberação de Acesso', pageWidth / 2, yPosition, { align: 'center' });
                 yPosition += 12;
-                
+
                 // Adicionar conteúdo
                 doc.setFontSize(13);
                 doc.setFont('times', 'normal');
-                
+
                 // Obter o texto da procuração formatado
-                const procuraçãoText = formatarTextoParaPDF();
+                const procuraçãoText = isFisica ? formatarTextoParaPDFFisica(dados) : formatarTextoParaPDF();
                 const lines = doc.splitTextToSize(procuraçãoText, maxWidth);
-                
+
                 // Adicionar todo o conteúdo
                 doc.text(lines, margin, yPosition);
-                
+
                 // Salvar o PDF
-                doc.save(`procuração-${concessionariaSelect.value}.pdf`);
+                const sufixoTipo = isFisica ? '-fisica' : '';
+                doc.save(`procuração-${concessionariaSelect.value}${sufixoTipo}.pdf`);
+            }
+
+            // Função para formatar texto para PDF (atendimento físico)
+            function formatarTextoParaPDFFisica(dados) {
+                const dataAssinaturaFormatada = formatarData(dados.dataAssinatura);
+                const dataValidadeFormatada = formatarData(dados.dataValidade);
+                const nomeCompanhia = nomeCompletoConcessionaria[dados.concessionaria] || dados.concessionaria;
+
+                let texto = `OUTORGANTE:\n${montarOutorganteFisica(dados)}\n\n`;
+
+                texto += `OUTORGADO:\n${dados.nomeProcurador.toUpperCase()}, CPF nº ${dados.cpfProcurador}.\n\n`;
+
+                texto += `PODERES:\n`;
+                texto += `Por meio desta, o OUTORGANTE nomeia e constitui como seu bastante procurador o OUTORGADO, a quem confere poderes para representá-lo junto à ${nomeCompanhia}, podendo para tanto:\n\n`;
+                texto += `- Solicitar serviços diversos;\n`;
+                texto += `- Requerer alteração de modalidade tarifária;\n`;
+                texto += `- Protocolar e acompanhar solicitações;\n`;
+                texto += `- Assinar requerimentos, formulários, termos e quaisquer documentos necessários;\n`;
+                texto += `- Prestar informações e praticar todos os atos necessários ao fiel cumprimento deste mandato.\n\n`;
+                texto += `O presente mandato é concedido com poderes amplos e gerais para o fim específico acima descrito.\n\n`;
+
+                texto += `PRAZO:\nEsta procuração é válida até ${dataValidadeFormatada}.\n\n`;
+
+                texto += `LOCAL E DATA:\n${dados.localAssinatura.toUpperCase()}, ${dataAssinaturaFormatada}.\n\n`;
+
+                texto += `___________________________________________________\n`;
+                texto += `ASSINATURA DO OUTORGANTE`;
+
+                return texto;
             }
             
             // Função para formatar texto para PDF
@@ -879,7 +1032,9 @@
                 document.getElementById('tipoOutorgante').selectedIndex = 0;
                 document.querySelector('input[name="perfil"][value="consultor"]').checked = true;
                 document.querySelector('input[name="tipoPerfil"][value="completo"]').checked = true;
-                
+                document.querySelector('input[name="tipoProcuracao"][value="digital"]').checked = true;
+                perfilAcessoSection.classList.remove('hidden');
+
                 // Mostrar dados PF e esconder PJ
                 dadosPF.classList.remove('hidden');
                 dadosPJ.classList.add('hidden');

@@ -348,6 +348,7 @@
                             <option value="CEMIG">CEMIG</option>
                             <option value="ENERGISA">ENERGISA</option>
                             <option value="EQUATORIAL">EQUATORIAL</option>
+                            <option value="COELBA">COELBA</option>
                         </select>
                     </div>
                 </div>
@@ -529,7 +530,8 @@
                 COSERN: 'Companhia Energética do Rio Grande do Norte – COSERN',
                 CEMIG: 'Companhia Energética de Minas Gerais – CEMIG',
                 ENERGISA: 'ENERGISA PARAÍBA - Distribuidora de Energia',
-                EQUATORIAL: 'Equatorial Energia Alagoas'
+                EQUATORIAL: 'Equatorial Energia Alagoas',
+                COELBA: 'Companhia de Eletricidade do Estado da Bahia – COELBA'
             };
 
             // Event Listeners
@@ -791,6 +793,10 @@
                         Clientes no endereço eletrônico https://al.equatorialenergia.com.br/sua-conta/mini-e-micro-
                         geracao/parecer-de-acesso/#micro-10, `;
                         break;
+                    case "COELBA":
+                        procuraçãoHTML += `de Eletricidade do Estado da Bahia – COELBA canal de atendimento exclusivo para Grandes
+                        Clientes no endereço eletrônico https://clientescorporativos.neoenergiacoelba.com.br, `;
+                        break;
                 }
                 
                 procuraçãoHTML += `para solicitar serviços e acessar informações úteis para a devida prestação
@@ -963,8 +969,11 @@
                     case "EQUATORIAL":
                         texto += `Energética de Alagoas – Equatorial energia canal de atendimento exclusivo para Grandes Clientes no endereço eletrônico https://al.equatorialenergia.com.br/sua-conta/mini-e-micro-geração/parecer-de-acesso/#micro-10, `;
                         break;
+                    case "COELBA":
+                        texto += `de Eletricidade do Estado da Bahia – COELBA canal de atendimento exclusivo para Grandes Clientes no endereço eletrônico https://clientescorporativos.neoenergiacoelba.com.br, `;
+                        break;
                 }
-                
+
                 texto += `para solicitar serviços e acessar informações úteis para a devida prestação dos serviços, do representante abaixo: ${dados.nomeProcurador.toUpperCase()} - CPF: ${dados.cpfProcurador}.\n\n`;
                 
                 texto += `A pessoa acima listada está autorizada a receber o acesso `;

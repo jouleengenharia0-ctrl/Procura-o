@@ -349,6 +349,7 @@
                             <option value="ENERGISA">ENERGISA</option>
                             <option value="EQUATORIAL">EQUATORIAL</option>
                             <option value="COELBA">COELBA</option>
+                            <option value="ENEL SP">ENEL SP</option>
                         </select>
                     </div>
                 </div>
@@ -531,7 +532,8 @@
                 CEMIG: 'Companhia Energética de Minas Gerais – CEMIG',
                 ENERGISA: 'ENERGISA PARAÍBA - Distribuidora de Energia',
                 EQUATORIAL: 'Equatorial Energia Alagoas',
-                COELBA: 'Companhia de Eletricidade do Estado da Bahia – COELBA'
+                COELBA: 'Companhia de Eletricidade do Estado da Bahia – COELBA',
+                'ENEL SP': 'Enel Distribuição São Paulo – ENEL SP'
             };
 
             // Event Listeners
@@ -797,6 +799,9 @@
                         procuraçãoHTML += `de Eletricidade do Estado da Bahia – COELBA canal de atendimento exclusivo para Grandes
                         Clientes no endereço eletrônico https://clientescorporativos.neoenergiacoelba.com.br, `;
                         break;
+                    case "ENEL SP":
+                        procuraçãoHTML += `Enel Distribuição São Paulo – ENEL SP canal de atendimento eletrônico no endereço https://www.enel.com.br/pt-saopaulo, `;
+                        break;
                 }
                 
                 procuraçãoHTML += `para solicitar serviços e acessar informações úteis para a devida prestação
@@ -971,6 +976,9 @@
                         break;
                     case "COELBA":
                         texto += `de Eletricidade do Estado da Bahia – COELBA canal de atendimento exclusivo para Grandes Clientes no endereço eletrônico https://clientescorporativos.neoenergiacoelba.com.br, `;
+                        break;
+                    case "ENEL SP":
+                        texto += `Enel Distribuição São Paulo – ENEL SP canal de atendimento eletrônico no endereço https://www.enel.com.br/pt-saopaulo, `;
                         break;
                 }
 

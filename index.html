@@ -348,6 +348,7 @@
                             <option value="CEMIG">CEMIG</option>
                             <option value="ENERGISA">ENERGISA</option>
                             <option value="EQUATORIAL">EQUATORIAL</option>
+                            <option value="EQUATORIAL MA">EQUATORIAL MA</option>
                             <option value="COELBA">COELBA</option>
                             <option value="ENEL SP">ENEL SP</option>
                         </select>
@@ -532,6 +533,7 @@
                 CEMIG: 'Companhia Energética de Minas Gerais – CEMIG',
                 ENERGISA: 'ENERGISA PARAÍBA - Distribuidora de Energia',
                 EQUATORIAL: 'Equatorial Energia Alagoas',
+                'EQUATORIAL MA': 'Equatorial Energia Maranhão',
                 COELBA: 'Companhia de Eletricidade do Estado da Bahia – COELBA',
                 'ENEL SP': 'Enel Distribuição São Paulo – ENEL SP'
             };
@@ -799,6 +801,9 @@
                         procuraçãoHTML += `de Eletricidade do Estado da Bahia – COELBA canal de atendimento exclusivo para Grandes
                         Clientes no endereço eletrônico https://clientescorporativos.neoenergiacoelba.com.br, `;
                         break;
+                    case "EQUATORIAL MA":
+                        procuraçãoHTML += `Equatorial Energia Maranhão canal de atendimento eletrônico no endereço https://agenciavirtual.equatorialenergia.com.br/GeracaoDistribuida/?sc=, `;
+                        break;
                     case "ENEL SP":
                         procuraçãoHTML += `Enel Distribuição São Paulo – ENEL SP canal de atendimento eletrônico no endereço https://www.enel.com.br/pt-saopaulo, `;
                         break;
@@ -821,7 +826,7 @@
                     procuraçãoHTML += ` e fisicamente`;
                 }
 
-                if (dados.concessionaria === "ENEL SP") {
+                if (dados.concessionaria === "ENEL SP" || dados.concessionaria === "EQUATORIAL MA") {
                     procuraçãoHTML += ` e por e-mail`;
                 }
                 
@@ -981,6 +986,9 @@
                     case "COELBA":
                         texto += `de Eletricidade do Estado da Bahia – COELBA canal de atendimento exclusivo para Grandes Clientes no endereço eletrônico https://clientescorporativos.neoenergiacoelba.com.br, `;
                         break;
+                    case "EQUATORIAL MA":
+                        texto += `Equatorial Energia Maranhão canal de atendimento eletrônico no endereço https://agenciavirtual.equatorialenergia.com.br/GeracaoDistribuida/?sc=, `;
+                        break;
                     case "ENEL SP":
                         texto += `Enel Distribuição São Paulo – ENEL SP canal de atendimento eletrônico no endereço https://www.enel.com.br/pt-saopaulo, `;
                         break;
@@ -1000,7 +1008,7 @@
                     texto += ` e fisicamente`;
                 }
 
-                if (dados.concessionaria === "ENEL SP") {
+                if (dados.concessionaria === "ENEL SP" || dados.concessionaria === "EQUATORIAL MA") {
                     texto += ` e por e-mail`;
                 }
                 

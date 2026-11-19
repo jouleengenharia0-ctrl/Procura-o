@@ -772,7 +772,7 @@
                 let procuraçãoHTML = '';
                 
                 procuraçãoHTML += `<div class="procuração-section">
-                    Venho, por meio desta, autorizar o acesso ao Portal de Clientes Corporativos da Companhia
+                    Venho, por meio desta, autorizar o acesso ao Portal ${dados.concessionaria === "EQUATORIAL MA" ? "" : "de Clientes Corporativos "}da Companhia
                 `;
                 
                 // Texto específico para cada concessionária
@@ -964,7 +964,7 @@
                 const dataAssinaturaFormatada = formatarData(dados.dataAssinatura);
                 const dataValidadeFormatada = formatarData(dados.dataValidade);
                 
-                let texto = 'Venho, por meio desta, autorizar o acesso ao Portal de Clientes Corporativos da Companhia ';
+                let texto = `Venho, por meio desta, autorizar o acesso ao Portal ${dados.concessionaria === "EQUATORIAL MA" ? "" : "de Clientes Corporativos "}da Companhia `;
                 
                 // Texto específico para cada concessionária
                 switch(dados.concessionaria) {

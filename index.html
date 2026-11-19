@@ -820,6 +820,10 @@
                 if (dados.concessionaria === "ENERGISA") {
                     procuraçãoHTML += ` e fisicamente`;
                 }
+
+                if (dados.concessionaria === "ENEL SP") {
+                    procuraçãoHTML += ` e por e-mail`;
+                }
                 
                 procuraçãoHTML += ` em nome <span class="procuração-bold">`;
                 
@@ -994,6 +998,10 @@
                 
                 if (dados.concessionaria === "ENERGISA") {
                     texto += ` e fisicamente`;
+                }
+
+                if (dados.concessionaria === "ENEL SP") {
+                    texto += ` e por e-mail`;
                 }
                 
                 texto += ` em nome `;
